@@ -2,6 +2,8 @@ how to run app
 if not checking on react sandbox:
 
 create a react app (if u haven't):
+
+
 npx create-react-app posti
 cd posti
 
