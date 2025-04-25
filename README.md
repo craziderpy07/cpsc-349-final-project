@@ -3,7 +3,7 @@
 [https://vcglc6.csb.app/](https://vcglc6.csb.app/)
 
 **how to run app**
-if not checking on react sandbox:
+*if not checking on react sandbox:*
 
 create a react app (if u haven't):<br>
 **npx create-react-app posti**<br>
