@@ -1,6 +1,6 @@
 CPSC 349 Final Project
 
-[Link Text]([https://example.com](https://vcglc6.csb.app/))
+[https://vcglc6.csb.app/](https://vcglc6.csb.app/)
 
 how to run app
 if not checking on react sandbox:
