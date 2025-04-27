@@ -10,6 +10,9 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10); // Updated to 10
 
+  const [reviews, setReviews] = useState({});
+  const [newReview, setNewReview] = useState("");
+
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then((res) => res.json())
@@ -42,6 +45,8 @@ export default function App() {
     }
     setCurrentPage(1); // Reset page to 1 when category changes
   };
+
+ 
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -142,6 +147,7 @@ export default function App() {
                 {product.description.slice(0, 60)}...
               </p>
               <p style={styles.price}>${product.price}</p>
+              <p>Rating: {product.rating.rate}⭐ ({product.rating.count} reviews)</p>
               <div style={{ display: "flex", gap: "10px" }}>
                 <button
                   onClick={() => goToProductDetail(product)}
@@ -176,27 +182,90 @@ export default function App() {
     </div>
   );
 
-  const renderDetail = () => (
-    <div style={styles.page}>
-      <h2 style={styles.sectionTitle}>{selectedProduct.title}</h2>
-      <img
-        src={selectedProduct.image}
-        alt={selectedProduct.title}
-        style={styles.detailImage}
-      />
-      <p style={styles.description}>{selectedProduct.description}</p>
-      <p style={styles.price}>${selectedProduct.price}</p>
-      <button
-        onClick={() => addToCart(selectedProduct)}
-        style={styles.primaryButton}
-      >
-        Add to Cart
-      </button>
-      <button onClick={() => setPage("shop")} style={styles.secondaryButton}>
-        Back to Shop
-      </button>
-    </div>
-  );
+  const renderDetail = () => {
+    if (!selectedProduct) return null;
+  
+    const productReviews = reviews[selectedProduct.id] || [];
+  
+    const handleReviewSubmit = () => {
+      if (newReview.trim() === "") return;
+      setReviews(prev => ({
+        ...prev,
+        [selectedProduct.id]: [...(prev[selectedProduct.id] || []), newReview]
+      }));
+      setNewReview("");
+    };
+  
+    return (
+      <div style={styles.page}>
+        <h2 style={styles.sectionTitle}>{selectedProduct.title}</h2>
+        <img
+          src={selectedProduct.image}
+          alt={selectedProduct.title}
+          style={styles.detailImage}
+        />
+        <p style={styles.price}>${selectedProduct.price}</p>
+  
+  
+  
+        <p style={styles.description}>{selectedProduct.description}</p>
+  
+        <button
+          onClick={() => addToCart(selectedProduct)}
+          style={styles.primaryButton}
+        >
+          Add to Cart
+        </button>
+        <button
+          onClick={() => setPage("shop")}
+          style={{ ...styles.secondaryButton, marginLeft: "10px" }}
+        >
+          Back to Shop
+        </button>
+  
+        {/* Reviews Section */}
+        <div style={{ marginTop: "40px", textAlign: "left" }}>
+          <h3>Reviews:</h3>
+          {productReviews.length === 0 ? (
+            <p style={styles.description}>No reviews yet.</p>
+          ) : (
+            <ul style={{ paddingLeft: "20px" }}>
+              {productReviews.map((review, idx) => (
+                <li key={idx} style={{ marginBottom: "10px" }}>
+                  {review}
+                </li>
+              ))}
+            </ul>
+          )}
+  
+          {/* New Review Input */}
+          <div style={{ marginTop: "20px" }}>
+            <textarea
+              value={newReview}
+              onChange={(e) => setNewReview(e.target.value)}
+              placeholder="Write your review..."
+              style={{
+                width: "100%",
+                height: "80px",
+                padding: "10px",
+                fontSize: "14px",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+              }}
+            />
+            <button
+              onClick={handleReviewSubmit}
+              style={{ ...styles.primaryButton, marginTop: "10px" }}
+            >
+              Submit Review
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  
 
   const renderCart = () => {
     const total = cart.reduce((sum, item) => sum + item.price, 0);
