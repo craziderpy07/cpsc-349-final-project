@@ -82,7 +82,7 @@ export default function App() {
             marginRight: "8px",
           }}
         />
-        Kirby
+        Posti
       </div>
       <div>
         <button onClick={() => setPage("home")} style={styles.navLink}>
