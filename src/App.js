@@ -82,7 +82,7 @@ export default function App() {
             marginRight: "8px",
           }}
         />
-        Posti
+        Kirby
       </div>
       <div>
         <button onClick={() => setPage("home")} style={styles.navLink}>
@@ -101,7 +101,7 @@ export default function App() {
   const renderHome = () => (
     <div style={styles.page}>
       <h1 style={styles.heroTitle}>Welcome to Posti</h1>
-      <p style={styles.heroSubtitle}>WIP.</p>
+      <p style={styles.heroSubtitle}>Kevin, Huy, and Teresa.</p>
       <button onClick={() => setPage("shop")} style={styles.ctaButton}>
         Shop Now
       </button>
