@@ -1,4 +1,6 @@
 # **CPSC 349 Final Project**
+website is now deployed on vercel:
+[https://cpsc-349-final-project-five.vercel.app/](https://cpsc-349-final-project-five.vercel.app/) <br>
 
 ## run **npm start** in the folder directory of the code. <br>
 it should return: [http://localhost:3000/](http://localhost:3000/) <br>
