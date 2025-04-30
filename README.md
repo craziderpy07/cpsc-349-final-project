@@ -1,8 +1,14 @@
-**CPSC 349 Final Project**
+# **CPSC 349 Final Project**
 
-[https://vcglc6.csb.app/](https://vcglc6.csb.app/)
+## run **npm start** in the folder directory of the code. <br>
+it should return: [http://localhost:3000/](http://localhost:3000/) <br>
 
-**how to run app**
+## site should be in prod now
+local: [http://localhost:64513/](http://localhost:64513/) <br>
+network: [http://137.151.150.82:64513/](http://137.151.150.82:64513/) <br>
+
+
+## **how to run app**
 *if not checking on react sandbox:*
 
 create a react app (if u haven't):<br>
