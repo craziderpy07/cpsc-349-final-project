@@ -3,11 +3,13 @@ website is now deployed on vercel:
 [https://cpsc-349-final-project-five.vercel.app/](https://cpsc-349-final-project-five.vercel.app/) <br>
 
 run **npm start** in the folder directory of the code. <br>
-it should return: [http://localhost:3000/](http://localhost:3000/) <br>
+it should return: [http://localhost:3000/](http://localhost:3000/)
+*(will only run when you are running it)* <br>
 
-site should be in prod now
+site should be in prod now. run **npm run build** for deployment and **serve -s build** to serve with a static server: <br>
 local: [http://localhost:64513/](http://localhost:64513/) <br>
 network: [http://137.151.150.82:64513/](http://137.151.150.82:64513/) <br>
+*(will only run when you are running it)* <br>
 
 
 **how to run app**
