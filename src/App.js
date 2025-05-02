@@ -19,6 +19,23 @@ export default function App() {
   const [newReview, setNewReview] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [profileError, setProfileError] = useState("");
+  const [expandedOrders, setExpandedOrders] = useState({});
+
+  // New states for orders and user profile
+  const [orders, setOrders] = useState([]);
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    cardNumber: "",
+    expiry: "",
+    cvv: "",
+  });
+
   // fetch products from FakeStoreAPI
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -179,6 +196,306 @@ export default function App() {
         </div>
       </div>
     );
+  };
+
+  // profile page for editing user information
+  const renderProfile = () => (
+    <div style={styles.page}>
+      <h2>profile</h2>
+      <form
+        style={styles.form}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const {
+            firstName,
+            lastName,
+            address,
+            city,
+            state,
+            zipcode,
+            cardNumber,
+            expiry,
+            cvv,
+          } = profile;
+
+          // all-fields required
+          if (
+            [
+              firstName,
+              lastName,
+              address,
+              city,
+              state,
+              zipcode,
+              cardNumber,
+              expiry,
+              cvv,
+            ].some((f) => f.trim() === "")
+          ) {
+            setProfileError("please fill out all fields.");
+            return;
+          }
+
+          const rawCard = profile.cardNumber.replace(/\s/g, "");
+
+          if (rawCard.length !== 16) {
+            setProfileError("card number must be 16 digits.");
+            return;
+          }
+
+          // zip code = exactly 5 digits
+          if (zipcode.length !== 5) {
+            setProfileError("zip code must be 5 digits.");
+            return;
+          }
+
+          // expiry must match MM/YY
+          if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) {
+            setProfileError("expiration date must be in MM/YY format.");
+            return;
+          }
+
+          // 4) cvv = exactly 3 digits
+          if (cvv.length !== 3) {
+            setProfileError("funny 3 numbers must be 3 digits.");
+            return;
+          }
+
+          setProfileError("");
+          alert("profile saved.");
+        }}
+      >
+        {profileError && (
+          <p style={{ ...styles.error, marginBottom: 10 }}>{profileError}</p>
+        )}
+
+        <div style={styles.field}>
+          <label htmlFor="firstName">first name:</label>
+          <input
+            id="firstName"
+            type="text"
+            value={profile.firstName}
+            onChange={(e) => {
+              const onlyLetters = e.target.value.replace(/[^a-zA-Z]/g, "");
+              setProfile({ ...profile, firstName: onlyLetters });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="lastName">last name:</label>
+          <input
+            id="lastName"
+            type="text"
+            value={profile.lastName}
+            onChange={(e) => {
+              const onlyLetters = e.target.value.replace(/[^a-zA-Z]/g, "");
+              setProfile({ ...profile, lastName: onlyLetters });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="address">street address:</label>
+          <input
+            id="address"
+            type="text"
+            value={profile.address}
+            onChange={(e) =>
+              setProfile({ ...profile, address: e.target.value })
+            }
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="city">city:</label>
+          <input
+            id="city"
+            type="text"
+            value={profile.city}
+            onChange={(e) => {
+              const onlyLetters = e.target.value.replace(/[^a-zA-Z]/g, "");
+              setProfile({ ...profile, city: onlyLetters });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="state">state:</label>
+          <input
+            id="state"
+            type="text"
+            value={profile.state}
+            maxLength={2}
+            onChange={(e) => {
+              const val = e.target.value
+                .toUpperCase() // force uppercase
+                .replace(/[^A-Z]/g, "") // strip non-letters
+                .slice(0, 2); // limit to 2 chars
+              setProfile({ ...profile, state: val });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="zipcode">zip code:</label>
+          <input
+            id="zipcode"
+            type="text"
+            value={profile.zipcode}
+            maxLength={5}
+            onChange={(e) => {
+              const onlyNums = e.target.value.replace(/\D/g, "").slice(0, 5);
+              setProfile({ ...profile, zipcode: onlyNums });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="cardNumber">card number:</label>
+          <input
+            id="cardNumber"
+            type="text"
+            placeholder="1234 5678 9012 3456"
+            value={profile.cardNumber}
+            maxLength={19}
+            onChange={(e) => {
+              let val = e.target.value.replace(/\D/g, "").slice(0, 16);
+              val = val.replace(/(\d{4})(?=\d)/g, "$1 ");
+              setProfile({ ...profile, cardNumber: val });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="expiry">expiration date:</label>
+          <input
+            id="expiry"
+            type="text"
+            placeholder="MM/YY"
+            value={profile.expiry}
+            maxLength={5}
+            onChange={(e) => {
+              let val = e.target.value.replace(/[^\d]/g, "");
+              if (val.length > 2) {
+                val = val.slice(0, 2) + "/" + val.slice(2, 4);
+              }
+              setProfile({ ...profile, expiry: val });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label htmlFor="cvv">
+            those funny 3 numbers on the back of the card:
+          </label>
+          <input
+            id="cvv"
+            type="text"
+            value={profile.cvv}
+            maxLength={3}
+            onChange={(e) => {
+              const onlyNums = e.target.value.replace(/\D/g, "").slice(0, 3);
+              setProfile({ ...profile, cvv: onlyNums });
+            }}
+            style={styles.input}
+          />
+        </div>
+
+        <button type="submit" style={styles.primaryButton}>
+          save profile
+        </button>
+      </form>
+    </div>
+  );
+
+   // orders page to display past purchases
+   const renderOrders = () => (
+    <div style={styles.page}>
+      <h2>order history</h2>
+      {orders.length === 0 ? (
+        <p style={styles.description}>you have no past orders.</p>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {orders.map((order, idx) => {
+            const formattedDate = new Date(order.date).toLocaleString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            return (
+              <li key={idx} style={{ marginBottom: "10px" }}>
+                <button
+                  style={styles.orderToggleButton}
+                  onClick={() =>
+                    setExpandedOrders((prev) => ({
+                      ...prev,
+                      [idx]: !prev[idx],
+                    }))
+                  }
+                >
+                  <span>
+                    order {idx + 1} —{" "}
+                    <span style={styles.orderDate}>{formattedDate}</span>
+                  </span>
+                  <span style={styles.orderArrow}>
+                    {expandedOrders[idx] ? "▲" : "▼"}
+                  </span>
+                </button>
+                {expandedOrders[idx] && (
+                  <div style={{ marginTop: "10px", paddingLeft: "15px" }}>
+                    {order.items.map((item, itemIdx) => (
+                      <div key={itemIdx} style={styles.orderItem}>
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          style={styles.orderImage}
+                        />
+                        <div>
+                          <strong>{item.title}</strong> × {item.quantity} — $
+                          {(item.price * item.quantity).toFixed(2)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+
+   const handleCheckout = () => {
+    const itemsMap = cart.reduce((acc, item) => {
+      if (!acc[item.id]) {
+        acc[item.id] = { ...item, quantity: 1 };
+      } else {
+        acc[item.id].quantity += 1;
+      }
+      return acc;
+    }, {});
+    const uniqueItems = Object.values(itemsMap);
+    if (uniqueItems.length === 0) return;
+    const order = {
+      items: uniqueItems,
+      date: new Date().toLocaleString(),
+    };
+    setOrders((prev) => [...prev, order]);
+    alert("purchase complete.");
+    setCart([]);
+    setPage("orders");
   };
 
   const goToProductDetail = (product) => {
@@ -465,7 +782,6 @@ export default function App() {
           back to shop
         </button>
 
-        {/* Reviews Section */}
         <div style={{ marginTop: "40px", textAlign: "left" }}>
           <h3>reviews:</h3>
           {productReviews.length === 0 ? (
@@ -559,10 +875,7 @@ export default function App() {
               <button onClick={clearCart} style={styles.checkoutButton}>
                 clear cart
               </button>
-              <button
-                onClick={() => alert("purchase complete.")}
-                style={styles.checkoutButton}
-              >
+              <button onClick={handleCheckout} style={styles.checkoutButton}>
                 check out
               </button>
             </div>
@@ -582,6 +895,8 @@ export default function App() {
       {page === "sign-in" && renderLogin()}
       {page === "sign-up" && renderSignUp()}
       {page === "account" && renderAccount()}
+      {page === "profile" && renderProfile()}
+      {page === "orders" && renderOrders()}
     </div>
   );
 }
@@ -684,7 +999,7 @@ const styles = {
     width: "100%",
   },
   productsContainer: {
-    marginLeft: "300px", // To leave space for the sidebar
+    marginLeft: "300px", // to leave space for the sidebar
     padding: "0 20px",
   },
   grid: {
@@ -868,5 +1183,44 @@ const styles = {
     objectFit: "contain",
     marginTop: "25px",
     marginBottom: "10px",
+  },
+  field: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginBottom: "10px",
+  },
+  orderToggleButton: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    padding: "10px 15px",
+    backgroundColor: pink,
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  orderDate: {
+    marginLeft: "8px",
+    fontSize: "14px",
+    opacity: 0.9,
+    textTransform: "lowercase",
+  },
+  orderArrow: {
+    marginLeft: "8px",
+    fontSize: "16px",
+  },
+  orderItem: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "10px",
+  },
+  orderImage: {
+    width: "50px",
+    height: "50px",
+    marginRight: "10px",
   },
 };
