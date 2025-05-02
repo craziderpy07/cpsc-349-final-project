@@ -117,7 +117,7 @@ export default function App() {
           onClick={() => handleCategoryChange("All")}
           style={styles.filterButton}
         >
-          All
+          all
         </button>
         {categories.map((category) => (
           <button
