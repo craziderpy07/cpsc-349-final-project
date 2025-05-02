@@ -6,7 +6,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [page, setPage] = useState("login");
+  const [page, setPage] = useState("home");
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
