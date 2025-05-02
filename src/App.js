@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 export default function App() {
-  const [username, setUsername] = useState(""); 
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [page, setPage] = useState("login");  
+  const [page, setPage] = useState("login");
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
@@ -19,6 +19,7 @@ export default function App() {
   const [newReview, setNewReview] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // fetch products from FakeStoreAPI
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then((res) => res.json())
@@ -44,8 +45,8 @@ export default function App() {
     } else {
       setErrorMessage("invalid credentials.");
     }
-  };  
-  
+  };
+
   const renderLogin = () => (
     <div style={styles.page}>
       <h2>login</h2>
@@ -66,12 +67,15 @@ export default function App() {
         />
         {errorMessage && <p style={styles.error}>{errorMessage}</p>}
         <div style={{ display: "flex", gap: "10px" }}>
-        <button type="submit" style={styles.primaryButton}>
-          log in
+          <button type="submit" style={styles.primaryButton}>
+            log in
           </button>
-        <button onClick={() => setPage("sign-up")} style={styles.primaryButton}>
-          register
-        </button>
+          <button
+            onClick={() => setPage("sign-up")}
+            style={styles.primaryButton}
+          >
+            register
+          </button>
         </div>
       </form>
     </div>
@@ -97,12 +101,18 @@ export default function App() {
         />
         {errorMessage && <p style={styles.error}>{errorMessage}</p>}
         <div style={{ display: "flex", gap: "10px" }}>
-        <button onClick={() => alert("successfully registered.")} style={styles.primaryButton}>
-          register
+          <button
+            onClick={() => alert("successfully registered.")}
+            style={styles.primaryButton}
+          >
+            register
           </button>
-        <button onClick={() => setPage("sign-in")} style={styles.primaryButton}>
-          back to login
-        </button>
+          <button
+            onClick={() => setPage("sign-in")}
+            style={styles.primaryButton}
+          >
+            back to login
+          </button>
         </div>
       </form>
     </div>
@@ -122,7 +132,7 @@ export default function App() {
       setIsAuthenticated(false);
       setPage("home");
     };
-  
+
     if (!user) {
       return (
         <div style={styles.page}>
@@ -131,17 +141,29 @@ export default function App() {
         </div>
       );
     }
-  
+
     return (
       <div style={styles.page}>
         <h2>hello, {user.username}. welcome to your account!</h2>
         <p>what would you like to do, {user.username}?</p>
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "20px",
+          }}
+        >
           <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={() => setPage("profile")} style={styles.primaryButton}>
+            <button
+              onClick={() => setPage("profile")}
+              style={styles.primaryButton}
+            >
               profile
             </button>
-            <button onClick={() => setPage("orders")} style={styles.primaryButton}>
+            <button
+              onClick={() => setPage("orders")}
+              style={styles.primaryButton}
+            >
               order history
             </button>
             <button onClick={handleLogout} style={styles.primaryButton}>
@@ -171,7 +193,6 @@ export default function App() {
       return newCart;
     });
   };
-
 
   const clearCart = () => {
     setCart([]);
@@ -214,6 +235,29 @@ export default function App() {
       <button onClick={() => setPage("shop")} style={styles.ctaButton}>
         shop now
       </button>
+
+      <h2 style={{ marginTop: "40px" }}>top 3 popular products</h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "20px",
+          flexWrap: "wrap",
+          marginTop: "20px",
+        }}
+      >
+        {products.slice(0,3).map((product) => (
+          <div key={product.id} style={styles.productCard}>
+            <img
+              src={product.image}
+              alt={product.title}
+              style={styles.productImage}
+            />
+            <p style={{ fontWeight: "bold" }}>{product.title}</p>
+            <p>${product.price}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -455,11 +499,9 @@ export default function App() {
       0
     );
 
-
     return (
       <div style={styles.cartContainer}>
         <h2 style={styles.sectionTitle}>your cart</h2>
-
 
         {uniqueItems.length === 0 ? (
           <p style={styles.description}>your cart is empty.</p>
@@ -489,7 +531,6 @@ export default function App() {
                 </div>
               ))}
             </div>
-
 
             <div style={styles.cartFooter}>
               <span style={styles.cartTotal}>Total: ${total.toFixed(2)}</span>
@@ -787,5 +828,23 @@ const styles = {
   error: {
     color: "red",
     fontSize: "14px",
+  },
+
+  productCard: {
+    border: "1px solid #ccc",
+    borderRadius: "8px",
+    padding: "15px",
+    textAlign: "center",
+    width: "1000px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    backgroundColor: "#fff",
+  },
+
+  productImage: {
+    width: "100px",
+    height: "100px",
+    objectFit: "contain",
+    marginTop: "25px",
+    marginBottom: "10px",
   },
 };
