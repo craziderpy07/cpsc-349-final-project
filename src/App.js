@@ -81,6 +81,17 @@ export default function App() {
     </div>
   );
 
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setErrorMessage("both fields are required.");
+      return;
+    }
+    setErrorMessage("");
+    alert("successfully registered.");
+  };
+  
+  
   const renderSignUp = () => (
     <div style={styles.page}>
       <h2>sign up</h2>
@@ -101,13 +112,11 @@ export default function App() {
         />
         {errorMessage && <p style={styles.error}>{errorMessage}</p>}
         <div style={{ display: "flex", gap: "10px" }}>
-          <button
-            onClick={() => alert("successfully registered.")}
-            style={styles.primaryButton}
-          >
+          <button type="submit" style={styles.primaryButton}>
             register
           </button>
           <button
+            type="button"
             onClick={() => setPage("sign-in")}
             style={styles.primaryButton}
           >
@@ -118,14 +127,11 @@ export default function App() {
     </div>
   );
 
-  const handleSignUp = (e) => {
-    e.preventDefault();
-    if (!username || !password) {
-      setErrorMessage("both fields are required.");
-      return;
-    }
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+    setPage("home");
   };
-
+  
   const renderAccount = () => {
     const handleLogout = () => {
       setUser(null);
@@ -292,9 +298,14 @@ export default function App() {
             </button>
           </>
         ) : (
+          <>
           <button onClick={() => setPage("account")} style={styles.navLink}>
             account
           </button>
+          <button onClick={handleSignOut} style={styles.navLink}>
+            log out
+          </button>
+        </>
         )}
       </div>
     </nav>
@@ -662,7 +673,7 @@ const styles = {
     width: "100%",
   },
   productsContainer: {
-    marginLeft: "300px", // To leave space for the sidebar
+    marginLeft: "300px",
     padding: "0 20px",
   },
   grid: {
@@ -745,7 +756,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     padding: "10px",
-    backgroundColor: pink, // "#FFD1DC"
+    backgroundColor: pink,
     borderRadius: "6px",
   },
   cartImage: {
