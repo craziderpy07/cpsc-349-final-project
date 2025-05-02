@@ -16,13 +16,14 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
   const [reviews, setReviews] = useState({});
+  const [reviewerName, setReviewerName] = useState("");
   const [newReview, setNewReview] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   const [profileError, setProfileError] = useState("");
   const [expandedOrders, setExpandedOrders] = useState({});
 
-  // New states for orders and user profile
+  // new states for orders and user profile
   const [orders, setOrders] = useState([]);
   const [profile, setProfile] = useState({
     firstName: "",
@@ -107,8 +108,7 @@ export default function App() {
     setErrorMessage("");
     alert("successfully registered.");
   };
-  
-  
+
   const renderSignUp = () => (
     <div style={styles.page}>
       <h2>sign up</h2>
@@ -148,7 +148,7 @@ export default function App() {
     setIsAuthenticated(false);
     setPage("home");
   };
-  
+
   const renderAccount = () => {
     const handleLogout = () => {
       setUser(null);
@@ -417,8 +417,8 @@ export default function App() {
     </div>
   );
 
-   // orders page to display past purchases
-   const renderOrders = () => (
+  // orders page to display past purchases
+  const renderOrders = () => (
     <div style={styles.page}>
       <h2>order history</h2>
       {orders.length === 0 ? (
@@ -477,7 +477,7 @@ export default function App() {
     </div>
   );
 
-   const handleCheckout = () => {
+  const handleCheckout = () => {
     const itemsMap = cart.reduce((acc, item) => {
       if (!acc[item.id]) {
         acc[item.id] = { ...item, quantity: 1 };
@@ -504,6 +504,11 @@ export default function App() {
   };
 
   const addToCart = (product) => {
+    if (!user) {
+      alert("please sign in to add products to your cart!");
+      return;
+    }
+
     setCart((prev) => [...prev, product]);
   };
 
@@ -551,6 +556,15 @@ export default function App() {
     }
   };
 
+  const searchedProducts = filteredProducts.filter((product) =>
+    product.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(searchedProducts.length / productsPerPage);
+
+  const displayPage = searchedProducts.length > 0 ? currentPage : 0;
+  const displayTotalPages = searchedProducts.length > 0 ? totalPages : 0;
+  
   const renderHome = () => (
     <div style={styles.page}>
       <h1 style={styles.heroTitle}>welcome to posti</h1>
@@ -558,7 +572,7 @@ export default function App() {
       <button onClick={() => setPage("shop")} style={styles.ctaButton}>
         shop now
       </button>
-  
+
       <h2 style={{ marginTop: "40px" }}>top 3 popular products</h2>
       <div
         style={{
@@ -587,13 +601,16 @@ export default function App() {
         <img
           src="https://i.pinimg.com/originals/cb/38/1b/cb381b1d5a5d1e5ad8b9690864a60da1.gif"
           alt="kirby-eating"
-          style={{ width: "300px", borderRadius: "15px", boxShadow: "0 0 10px pink" }}
+          style={{
+            width: "300px",
+            borderRadius: "15px",
+            boxShadow: "0 0 10px pink",
+          }}
         />
         <p style={{ fontStyle: "italic", marginTop: "15px" }}>poyo!</p>
       </div>
     </div>
   );
-  
 
   const renderNav = () => (
     <nav style={styles.nav}>
@@ -627,13 +644,13 @@ export default function App() {
           </>
         ) : (
           <>
-          <button onClick={() => setPage("account")} style={styles.navLink}>
-            account
-          </button>
-          <button onClick={handleSignOut} style={styles.navLink}>
-            log out
-          </button>
-        </>
+            <button onClick={() => setPage("account")} style={styles.navLink}>
+              account
+            </button>
+            <button onClick={handleSignOut} style={styles.navLink}>
+              log out
+            </button>
+          </>
         )}
       </div>
     </nav>
@@ -732,7 +749,7 @@ export default function App() {
               &#8592; prev
             </button>
             <span style={styles.pageInfo}>
-              page {currentPage} of {totalPages}
+              page {displayPage} of {displayTotalPages}
             </span>
             <button onClick={nextPage} style={styles.pageArrowButton}>
               next &#8594;
@@ -749,12 +766,19 @@ export default function App() {
     const productReviews = reviews[selectedProduct.id] || [];
 
     const handleReviewSubmit = () => {
-      if (newReview.trim() === "") return;
+      if (newReview.trim() === "" || reviewerName.trim() === "") return;
+
+      const newReviewObj = { name: reviewerName, text: newReview };
+
       setReviews((prev) => ({
         ...prev,
-        [selectedProduct.id]: [...(prev[selectedProduct.id] || []), newReview],
+        [selectedProduct.id]: [
+          ...(prev[selectedProduct.id] || []),
+          newReviewObj,
+        ],
       }));
       setNewReview("");
+      setReviewerName("");
     };
 
     return (
@@ -787,16 +811,55 @@ export default function App() {
           {productReviews.length === 0 ? (
             <p style={styles.description}>no reviews yet.</p>
           ) : (
-            <ul style={{ paddingLeft: "20px" }}>
-              {productReviews.map((review, idx) => (
-                <li key={idx} style={{ marginBottom: "10px" }}>
-                  {review}
-                </li>
+            <ul style={{ paddingLeft: "0px" }}>
+              {productReviews.map((rev, index) => (
+                <div
+                  key={index}
+                  style={{
+                    backgroundColor: "#fff",
+                    padding: "20px",
+                    borderRadius: "8px",
+                    marginBottom: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <img
+                    src="https://media.tenor.com/pbcpuLXu-hMAAAAj/nerd.gif"
+                    alt="nerdy-waddle-dee"
+                    style={{
+                      width: "55px",
+                      height: "40px",
+                      marginRight: "10px",
+                    }}
+                  />
+                  <div>
+                    <p style={{ margin: 0 }}>
+                      <strong>{rev.name}</strong>: {rev.text}
+                    </p>
+                  </div>
+                </div>
               ))}
             </ul>
           )}
 
           <div style={{ marginTop: "20px" }}>
+            <input
+              type="text"
+              value={reviewerName}
+              onChange={(e) => setReviewerName(e.target.value)}
+              placeholder="your name..."
+              style={{
+                width: "100%",
+                padding: "10px",
+                fontSize: "14px",
+                fontFamily: "'Segoe UI', sans-serif",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                marginBottom: "10px",
+              }}
+            />
             <textarea
               value={newReview}
               onChange={(e) => setNewReview(e.target.value)}
@@ -806,6 +869,7 @@ export default function App() {
                 height: "80px",
                 padding: "10px",
                 fontSize: "14px",
+                fontFamily: "'Segoe UI', sans-serif",
                 borderRadius: "4px",
                 border: "1px solid #ccc",
               }}
@@ -905,7 +969,7 @@ const pink = "#FFD1DC";
 
 const styles = {
   app: {
-    fontFamily: "'Segoe UI', sans-serif",
+    fontFamily: "Arial, sans-serif",
     backgroundColor: "#fff0f5",
     minHeight: "100vh",
     color: "#333",
