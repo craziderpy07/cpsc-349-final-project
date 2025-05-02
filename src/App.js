@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 export default function App() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [page, setPage] = useState("home");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
@@ -12,7 +14,11 @@ export default function App() {
 
   const [reviews, setReviews] = useState({});
   const [newReview, setNewReview] = useState("");
-  const [searchTerm, setSearchTerm] = useState(""); // 🔄 ADDED
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -27,6 +33,114 @@ export default function App() {
       });
   }, []);
 
+  const renderSignUp = () => (
+    <div style={styles.page}>
+      <h2>sign up</h2>
+      <form onSubmit={handleSignUp} style={styles.form}>
+        <input
+          type="text"
+          placeholder="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+        {errorMessage && <p style={styles.error}>{errorMessage}</p>}
+        <div style={{ display: "flex", gap: "10px" }}>
+        <button type="submit" style={styles.primaryButton}>
+          register
+        </button>
+        <button onClick={() => setPage("sign-in")} style={styles.primaryButton}>
+          back to login
+        </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  const handleSignUp = (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setErrorMessage("both fields are required.");
+      return;
+    }
+    console.log("signing up:", { username, password });
+    setUsername("");
+    setPassword("");
+    setErrorMessage("");
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!username || !password) {
+      setErrorMessage("both fields are required.");
+      return;
+    }
+    console.log("logging in:", { username, password });
+    setUsername("");
+    setPassword("");
+    setErrorMessage("");
+  };
+
+  const renderLogin = () => (
+    <div style={styles.page}>
+      <h2>login</h2>
+      <form onSubmit={handleLogin} style={styles.form}>
+        <input
+          type="text"
+          placeholder="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+        {errorMessage && <p style={styles.error}>{errorMessage}</p>}
+        <div style={{ display: "flex", gap: "10px" }}>
+        <button type="submit" style={styles.primaryButton}>
+          log in
+        </button>
+        <button onClick={() => setPage("sign-up")} style={styles.primaryButton}>
+          register
+        </button>
+        </div>
+      </form>
+    </div>
+  );
+
+  const renderAccount = () => {
+    const handleLogout = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+      setPage("home");
+    };
+
+    return (
+      <div style={styles.page}>
+        <h2>account</h2>
+        {user && (
+          <>
+            <p>username: {user.username}</p>
+            <button onClick={handleLogout} style={styles.primaryButton}>
+              log out
+            </button>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const goToProductDetail = (product) => {
     setSelectedProduct(product);
     setPage("detail");
@@ -34,6 +148,21 @@ export default function App() {
 
   const addToCart = (product) => {
     setCart((prev) => [...prev, product]);
+  };
+
+  const removeFromCart = (productId) => {
+    setCart((prev) => {
+      const index = prev.findIndex((p) => p.id === productId);
+      if (index < 0) return prev;
+      const newCart = [...prev];
+      newCart.splice(index, 1);
+      return newCart;
+    });
+  };
+
+
+  const clearCart = () => {
+    setCart([]);
   };
 
   const handleCategoryChange = (category) => {
@@ -100,6 +229,17 @@ export default function App() {
         <button onClick={() => setPage("cart")} style={styles.navLink}>
           cart ({cart.length})
         </button>
+        {!isAuthenticated ? (
+          <>
+            <button onClick={() => setPage("sign-in")} style={styles.navLink}>
+              sign in
+            </button>
+          </>
+        ) : (
+          <button onClick={() => setPage("account")} style={styles.navLink}>
+            account
+          </button>
+        )}
       </div>
     </nav>
   );
@@ -289,23 +429,62 @@ export default function App() {
   };
 
   const renderCart = () => {
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const itemsMap = cart.reduce((acc, item) => {
+      if (!acc[item.id]) {
+        acc[item.id] = { ...item, quantity: 1 };
+      } else {
+        acc[item.id].quantity += 1;
+      }
+      return acc;
+    }, {});
+    const uniqueItems = Object.values(itemsMap);
+    const total = uniqueItems.reduce(
+      (sum, { price, quantity }) => sum + price * quantity,
+      0
+    );
+
 
     return (
-      <div style={styles.page}>
+      <div style={styles.cartContainer}>
         <h2 style={styles.sectionTitle}>your cart</h2>
-        {cart.length === 0 ? (
-          <p style={styles.description}>no items in cart.</p>
+
+
+        {uniqueItems.length === 0 ? (
+          <p style={styles.description}>your cart is empty.</p>
         ) : (
           <>
-            <ul style={{ textAlign: "left", paddingLeft: "0" }}>
-              {cart.map((item, idx) => (
-                <li key={idx} style={styles.cartItem}>
-                  {item.title} - ${item.price}
-                </li>
+            <div style={styles.cartList}>
+              {uniqueItems.map(({ id, title, price, quantity, image }) => (
+                <div key={id} style={styles.cartItemCard}>
+                  <img src={image} alt={title} style={styles.cartImage} />
+                  <div style={styles.cartDetails}>
+                    <span style={styles.cartTitle}>{title}</span>
+                    <span style={styles.cartQtyWrapper}>
+                      <span style={styles.cartQtyLabel}>quantity: </span>
+                      <span>{quantity}</span>
+                    </span>
+                    <span style={styles.cartQtyWrapper}>
+                      <span style={styles.cartQtyLabel}>price: </span>
+                      <span>${(price * quantity).toFixed(2)}</span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => removeFromCart(id)}
+                    style={styles.removeButton}
+                  >
+                    remove
+                  </button>
+                </div>
               ))}
-            </ul>
-            <h3 style={{ marginTop: 20 }}>total: ${total.toFixed(2)}</h3>
+            </div>
+
+
+            <div style={styles.cartFooter}>
+              <span style={styles.cartTotal}>Total: ${total.toFixed(2)}</span>
+              <button onClick={clearCart} style={styles.checkoutButton}>
+                clear cart
+              </button>
+            </div>
           </>
         )}
       </div>
@@ -319,6 +498,9 @@ export default function App() {
       {page === "shop" && renderShop()}
       {page === "detail" && renderDetail()}
       {page === "cart" && renderCart()}
+      {page === "sign-in" && renderLogin()}
+      {page === "sign-up" && renderSignUp()}
+      {page === "account" && renderAccount()}
     </div>
   );
 }
@@ -478,6 +660,83 @@ const styles = {
     margin: "10px 0",
     fontSize: "16px",
   },
+  cartContainer: {
+    padding: "20px",
+    backgroundColor: "#fff",
+    borderRadius: "8px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    maxWidth: "800px",
+    margin: "0 auto",
+    textAlign: "left",
+  },
+  cartList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  },
+  cartQtyWrapper: {
+    display: "flex",
+    alignItems: "center",
+  },
+  cartQtyLabel: {
+    fontWeight: "bold",
+    marginRight: "6px",
+  },
+  cartItemCard: {
+    display: "flex",
+    alignItems: "center",
+    padding: "10px",
+    backgroundColor: pink, // "#FFD1DC"
+    borderRadius: "6px",
+  },
+  cartImage: {
+    width: "60px",
+    height: "60px",
+    objectFit: "cover",
+    borderRadius: "4px",
+    marginRight: "15px",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+  },
+  cartDetails: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    color: "#333",
+  },
+  cartTitle: {
+    fontWeight: "600",
+    fontSize: "16px",
+  },
+  removeButton: {
+    backgroundColor: "#fff",
+    color: "gray",
+    border: `1px solid ${pink}`,
+    borderRadius: "4px",
+    padding: "5px 10px",
+    cursor: "pointer",
+    textShadow: "0 0 2px white",
+  },
+  cartFooter: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "20px",
+  },
+  cartTotal: {
+    fontSize: "18px",
+    fontWeight: "bold",
+  },
+  checkoutButton: {
+    backgroundColor: pink,
+    color: "#ff3c8c",
+    border: "none",
+    fontSize: "medium",
+    borderRadius: "4px",
+    padding: "8px 15px",
+    cursor: "pointer",
+    textShadow: "0 0 2px white",
+  },
   pagination: {
     marginTop: "20px",
   },
@@ -493,5 +752,22 @@ const styles = {
   pageInfo: {
     fontSize: "16px",
     color: "#333",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  input: {
+    padding: "10px",
+    fontSize: "16px",
+    margin: "10px 0",
+    width: "300px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+  },
+  error: {
+    color: "red",
+    fontSize: "14px",
   },
 };
