@@ -97,9 +97,9 @@ export default function App() {
         />
         {errorMessage && <p style={styles.error}>{errorMessage}</p>}
         <div style={{ display: "flex", gap: "10px" }}>
-        <button type="submit" style={styles.primaryButton}>
+        <button onClick={() => alert("successfully registered.")} style={styles.primaryButton}>
           register
-        </button>
+          </button>
         <button onClick={() => setPage("sign-in")} style={styles.primaryButton}>
           back to login
         </button>
