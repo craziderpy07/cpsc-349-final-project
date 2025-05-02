@@ -8,10 +8,11 @@ export default function App() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(10); // Updated to 10
+  const [productsPerPage] = useState(10);
 
   const [reviews, setReviews] = useState({});
   const [newReview, setNewReview] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // 🔄 ADDED
 
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -43,18 +44,9 @@ export default function App() {
         products.filter((product) => product.category === category)
       );
     }
-    setCurrentPage(1); // Reset page to 1 when category changes
+    setCurrentPage(1);
+    setSearchTerm("");
   };
-
- 
-
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -65,10 +57,24 @@ export default function App() {
   };
 
   const nextPage = () => {
+    const searchedProducts = filteredProducts.filter((product) =>
+      product.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const totalPages = Math.ceil(searchedProducts.length / productsPerPage);
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
+
+  const renderHome = () => (
+    <div style={styles.page}>
+      <h1 style={styles.heroTitle}>welcome to posti</h1>
+      <p style={styles.heroSubtitle}>kevin, huy, and teresa.</p>
+      <button onClick={() => setPage("shop")} style={styles.ctaButton}>
+        shop now
+      </button>
+    </div>
+  );
 
   const renderNav = () => (
     <nav style={styles.nav}>
@@ -82,120 +88,140 @@ export default function App() {
             marginRight: "8px",
           }}
         />
-        Posti
+        posti
       </div>
       <div>
         <button onClick={() => setPage("home")} style={styles.navLink}>
-          Home
+          home
         </button>
         <button onClick={() => setPage("shop")} style={styles.navLink}>
-          Shop
+          shop
         </button>
         <button onClick={() => setPage("cart")} style={styles.navLink}>
-          Cart ({cart.length})
+          cart ({cart.length})
         </button>
       </div>
     </nav>
   );
 
-  const renderHome = () => (
-    <div style={styles.page}>
-      <h1 style={styles.heroTitle}>Welcome to Posti</h1>
-      <p style={styles.heroSubtitle}>Kevin, Huy, and Teresa.</p>
-      <button onClick={() => setPage("shop")} style={styles.ctaButton}>
-        Shop Now
-      </button>
-    </div>
-  );
+  const renderShop = () => {
+    const searchedProducts = filteredProducts.filter((product) =>
+      product.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  const renderShop = () => (
-    <div style={styles.shopPage}>
-      {/* Filters/Categories on Left Sidebar */}
-      <div style={styles.sidebar}>
-        <h3 style={styles.sidebarTitle}>Categories</h3>
-        <button
-          onClick={() => handleCategoryChange("All")}
-          style={styles.filterButton}
-        >
-          all
-        </button>
-        {categories.map((category) => (
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = searchedProducts.slice(
+      indexOfFirstProduct,
+      indexOfLastProduct
+    );
+    const totalPages = Math.ceil(searchedProducts.length / productsPerPage);
+
+    return (
+      <div style={styles.shopPage}>
+        <div style={styles.sidebar}>
+          <h3 style={styles.sidebarTitle}>categories</h3>
           <button
-            key={category}
-            onClick={() => handleCategoryChange(category)}
+            onClick={() => handleCategoryChange("All")}
             style={styles.filterButton}
           >
-            {category}
+            all
           </button>
-        ))}
-      </div>
-
-      {/* Product Grid on the Right */}
-      <div style={styles.productsContainer}>
-        <h2 style={styles.sectionTitle}>Shop All</h2>
-
-        <div style={styles.grid}>
-          {currentProducts.map((product) => (
-            <div key={product.id} style={styles.card}>
-              <img
-                src={product.image}
-                alt={product.title}
-                style={styles.image}
-              />
-              <h3>{product.title}</h3>
-              <p style={styles.description}>
-                {product.description.slice(0, 60)}...
-              </p>
-              <p style={styles.price}>${product.price}</p>
-              <p>Rating: {product.rating.rate}⭐ ({product.rating.count} reviews)</p>
-              <div style={{ display: "flex", gap: "10px" }}>
-                <button
-                  onClick={() => goToProductDetail(product)}
-                  style={styles.secondaryButton}
-                >
-                  View
-                </button>
-                <button
-                  onClick={() => addToCart(product)}
-                  style={styles.primaryButton}
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </div>
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => handleCategoryChange(category)}
+              style={styles.filterButton}
+            >
+              {category}
+            </button>
           ))}
         </div>
 
-        {/* Pagination */}
-        <div style={styles.pagination}>
-          <button onClick={prevPage} style={styles.pageArrowButton}>
-            &#8592; Prev
-          </button>
-          <span style={styles.pageInfo}>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button onClick={nextPage} style={styles.pageArrowButton}>
-            Next &#8594;
-          </button>
+        <div style={styles.productsContainer}>
+          <h2 style={styles.sectionTitle}>shop all</h2>
+
+          <div style={{ marginBottom: "20px", marginTop: "10px" }}>
+            <input
+              type="text"
+              placeholder="search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: "98%",
+                padding: "10px",
+                fontSize: "16px",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+              }}
+            />
+          </div>
+
+          <div style={styles.grid}>
+            {currentProducts.map((product) => (
+              <div key={product.id} style={styles.card}>
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  style={styles.image}
+                />
+                <h3>{product.title}</h3>
+                <p style={styles.description}>
+                  {product.description.slice(0, 60)}...
+                </p>
+                <p style={styles.price}>${product.price}</p>
+                <p>
+                  rating: {product.rating.rate} ⭐ ({product.rating.count}{" "}
+                  reviews)
+                </p>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    onClick={() => goToProductDetail(product)}
+                    style={styles.secondaryButton}
+                  >
+                    view
+                  </button>
+                  <button
+                    onClick={() => addToCart(product)}
+                    style={styles.primaryButton}
+                  >
+                    add to cart
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={styles.pagination}>
+            <button onClick={prevPage} style={styles.pageArrowButton}>
+              &#8592; prev
+            </button>
+            <span style={styles.pageInfo}>
+              page {currentPage} of {totalPages}
+            </span>
+            <button onClick={nextPage} style={styles.pageArrowButton}>
+              next &#8594;
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderDetail = () => {
     if (!selectedProduct) return null;
-  
+
     const productReviews = reviews[selectedProduct.id] || [];
-  
+
     const handleReviewSubmit = () => {
       if (newReview.trim() === "") return;
-      setReviews(prev => ({
+      setReviews((prev) => ({
         ...prev,
-        [selectedProduct.id]: [...(prev[selectedProduct.id] || []), newReview]
+        [selectedProduct.id]: [...(prev[selectedProduct.id] || []), newReview],
       }));
       setNewReview("");
     };
-  
+
     return (
       <div style={styles.page}>
         <h2 style={styles.sectionTitle}>{selectedProduct.title}</h2>
@@ -205,29 +231,27 @@ export default function App() {
           style={styles.detailImage}
         />
         <p style={styles.price}>${selectedProduct.price}</p>
-  
-  
-  
+
         <p style={styles.description}>{selectedProduct.description}</p>
-  
+
         <button
           onClick={() => addToCart(selectedProduct)}
           style={styles.primaryButton}
         >
-          Add to Cart
+          add to cart
         </button>
         <button
           onClick={() => setPage("shop")}
           style={{ ...styles.secondaryButton, marginLeft: "10px" }}
         >
-          Back to Shop
+          back to shop
         </button>
-  
+
         {/* Reviews Section */}
         <div style={{ marginTop: "40px", textAlign: "left" }}>
-          <h3>Reviews:</h3>
+          <h3>reviews:</h3>
           {productReviews.length === 0 ? (
-            <p style={styles.description}>No reviews yet.</p>
+            <p style={styles.description}>no reviews yet.</p>
           ) : (
             <ul style={{ paddingLeft: "20px" }}>
               {productReviews.map((review, idx) => (
@@ -237,13 +261,12 @@ export default function App() {
               ))}
             </ul>
           )}
-  
-          {/* New Review Input */}
+
           <div style={{ marginTop: "20px" }}>
             <textarea
               value={newReview}
               onChange={(e) => setNewReview(e.target.value)}
-              placeholder="Write your review..."
+              placeholder="write your review..."
               style={{
                 width: "100%",
                 height: "80px",
@@ -257,24 +280,22 @@ export default function App() {
               onClick={handleReviewSubmit}
               style={{ ...styles.primaryButton, marginTop: "10px" }}
             >
-              Submit Review
+              submit review
             </button>
           </div>
         </div>
       </div>
     );
   };
-  
-  
 
   const renderCart = () => {
     const total = cart.reduce((sum, item) => sum + item.price, 0);
 
     return (
       <div style={styles.page}>
-        <h2 style={styles.sectionTitle}>Your Cart</h2>
+        <h2 style={styles.sectionTitle}>your cart</h2>
         {cart.length === 0 ? (
-          <p style={styles.description}>No items in cart.</p>
+          <p style={styles.description}>no items in cart.</p>
         ) : (
           <>
             <ul style={{ textAlign: "left", paddingLeft: "0" }}>
@@ -284,7 +305,7 @@ export default function App() {
                 </li>
               ))}
             </ul>
-            <h3 style={{ marginTop: 20 }}>Total: ${total.toFixed(2)}</h3>
+            <h3 style={{ marginTop: 20 }}>total: ${total.toFixed(2)}</h3>
           </>
         )}
       </div>
@@ -332,6 +353,18 @@ const styles = {
     marginLeft: "15px",
     fontSize: "16px",
     cursor: "pointer",
+  },
+  searchContainer: {
+    display: "flex",
+    alignItems: "center",
+  },
+  searchInput: {
+    padding: "8px",
+    fontSize: "14px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+    width: "200px",
+    marginLeft: "20px",
   },
   page: {
     padding: "40px 20px",
