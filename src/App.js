@@ -241,7 +241,7 @@ export default function App() {
       <button onClick={() => setPage("shop")} style={styles.ctaButton}>
         shop now
       </button>
-
+  
       <h2 style={{ marginTop: "40px" }}>top 3 popular products</h2>
       <div
         style={{
@@ -252,7 +252,7 @@ export default function App() {
           marginTop: "20px",
         }}
       >
-        {products.slice(0,3).map((product) => (
+        {products.slice(0, 3).map((product) => (
           <div key={product.id} style={styles.productCard}>
             <img
               src={product.image}
@@ -264,8 +264,19 @@ export default function App() {
           </div>
         ))}
       </div>
+
+      <div style={{ marginTop: "50px", textAlign: "center" }}>
+        <h3 style={{ marginBottom: "15px" }}>✨ kirby break ✨</h3>
+        <img
+          src="https://i.pinimg.com/originals/cb/38/1b/cb381b1d5a5d1e5ad8b9690864a60da1.gif"
+          alt="kirby-eating"
+          style={{ width: "300px", borderRadius: "15px", boxShadow: "0 0 10px pink" }}
+        />
+        <p style={{ fontStyle: "italic", marginTop: "15px" }}>poyo!</p>
+      </div>
     </div>
   );
+  
 
   const renderNav = () => (
     <nav style={styles.nav}>
@@ -673,7 +684,7 @@ const styles = {
     width: "100%",
   },
   productsContainer: {
-    marginLeft: "300px",
+    marginLeft: "300px", // To leave space for the sidebar
     padding: "0 20px",
   },
   grid: {
@@ -756,7 +767,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     padding: "10px",
-    backgroundColor: pink,
+    backgroundColor: pink, // "#FFD1DC"
     borderRadius: "6px",
   },
   cartImage: {
