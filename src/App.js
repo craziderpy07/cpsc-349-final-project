@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 
 export default function App() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(""); 
   const [password, setPassword] = useState("");
-  const [page, setPage] = useState("home");
+  const [user, setUser] = useState(null); 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [page, setPage] = useState("login");  
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
@@ -11,14 +15,9 @@ export default function App() {
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage] = useState(10);
-
   const [reviews, setReviews] = useState({});
   const [newReview, setNewReview] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -32,6 +31,51 @@ export default function App() {
         setCategories(allCategories);
       });
   }, []);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // test login credentials for right now
+    if (username === "guest" && password === "12345") {
+      setUser({ username });
+      setIsAuthenticated(true);
+      setErrorMessage("");
+      setPage("account");
+    } else {
+      setErrorMessage("invalid credentials.");
+    }
+  };  
+  
+  const renderLogin = () => (
+    <div style={styles.page}>
+      <h2>login</h2>
+      <form onSubmit={handleLogin} style={styles.form}>
+        <input
+          type="text"
+          placeholder="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={styles.input}
+        />
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+        {errorMessage && <p style={styles.error}>{errorMessage}</p>}
+        <div style={{ display: "flex", gap: "10px" }}>
+        <button type="submit" style={styles.primaryButton}>
+          log in
+          </button>
+        <button onClick={() => setPage("sign-up")} style={styles.primaryButton}>
+          register
+        </button>
+        </div>
+      </form>
+    </div>
+  );
 
   const renderSignUp = () => (
     <div style={styles.page}>
@@ -70,54 +114,7 @@ export default function App() {
       setErrorMessage("both fields are required.");
       return;
     }
-    console.log("signing up:", { username, password });
-    setUsername("");
-    setPassword("");
-    setErrorMessage("");
   };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!username || !password) {
-      setErrorMessage("both fields are required.");
-      return;
-    }
-    console.log("logging in:", { username, password });
-    setUsername("");
-    setPassword("");
-    setErrorMessage("");
-  };
-
-  const renderLogin = () => (
-    <div style={styles.page}>
-      <h2>login</h2>
-      <form onSubmit={handleLogin} style={styles.form}>
-        <input
-          type="text"
-          placeholder="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
-        {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-        <div style={{ display: "flex", gap: "10px" }}>
-        <button type="submit" style={styles.primaryButton}>
-          log in
-        </button>
-        <button onClick={() => setPage("sign-up")} style={styles.primaryButton}>
-          register
-        </button>
-        </div>
-      </form>
-    </div>
-  );
 
   const renderAccount = () => {
     const handleLogout = () => {
@@ -125,18 +122,33 @@ export default function App() {
       setIsAuthenticated(false);
       setPage("home");
     };
-
+  
+    if (!user) {
+      return (
+        <div style={styles.page}>
+          <h2>account</h2>
+          <p>not logged in.</p>
+        </div>
+      );
+    }
+  
     return (
       <div style={styles.page}>
-        <h2>account</h2>
-        {user && (
-          <>
-            <p>username: {user.username}</p>
+        <h2>hello, {user.username}. welcome to your account!</h2>
+        <p>what would you like to do, {user.username}?</p>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={() => setPage("profile")} style={styles.primaryButton}>
+              profile
+            </button>
+            <button onClick={() => setPage("orders")} style={styles.primaryButton}>
+              order history
+            </button>
             <button onClick={handleLogout} style={styles.primaryButton}>
               log out
             </button>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     );
   };
@@ -483,6 +495,12 @@ export default function App() {
               <span style={styles.cartTotal}>Total: ${total.toFixed(2)}</span>
               <button onClick={clearCart} style={styles.checkoutButton}>
                 clear cart
+              </button>
+              <button
+                onClick={() => alert("purchase complete.")}
+                style={styles.checkoutButton}
+              >
+                check out
               </button>
             </div>
           </>
