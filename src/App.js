@@ -971,17 +971,17 @@ export default function App() {
     const { name, email, message } = contactForm;
 
     if (name && email && message) {
-      setContactStatus("Your message has been sent successfully!");
-      setContactForm({ name: "", email: "", message: "" }); // reset form
+      setContactStatus("your message has been sent successfully!");
+      setContactForm({ name: "", email: "", message: "" });
     } else {
-      setContactStatus("Please fill out all fields.");
+      setContactStatus("please fill out all fields.");
     }
   };
 
   const renderContact = () => {
     return (
       <div style={{ padding: "20px" }}>
-        <h2 style={{ fontSize: "40px" }}>contact us!</h2>
+        <h2 style={{ fontSize: "40px", textAlign: "center" }}>contact us!</h2>
         <form onSubmit={handleContactSubmit} style={styles.contactForm}>
           <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
             <input
@@ -1013,7 +1013,7 @@ export default function App() {
             }}
           />
           <button type="submit" style={{ ...styles.button }}>
-            Submit
+            submit
           </button>
         </form>
         {contactStatus && (
