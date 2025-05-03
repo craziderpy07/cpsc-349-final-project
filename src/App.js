@@ -564,7 +564,7 @@ export default function App() {
 
   const displayPage = searchedProducts.length > 0 ? currentPage : 0;
   const displayTotalPages = searchedProducts.length > 0 ? totalPages : 0;
-  
+
   const renderHome = () => (
     <div style={styles.page}>
       <h1 style={styles.heroTitle}>welcome to posti</h1>
@@ -591,7 +591,7 @@ export default function App() {
               style={styles.productImage}
             />
             <p style={{ fontWeight: "bold" }}>{product.title}</p>
-            <p>${product.price}</p>
+            <p>${product.price.toFixed(2)}</p>
           </div>
         ))}
       </div>
@@ -721,7 +721,7 @@ export default function App() {
                 <p style={styles.description}>
                   {product.description.slice(0, 60)}...
                 </p>
-                <p style={styles.price}>${product.price}</p>
+                <p style={styles.price}>${product.price.toFixed(2)}</p>
                 <p>
                   rating: {product.rating.rate} ⭐ ({product.rating.count}{" "}
                   reviews)
@@ -789,7 +789,7 @@ export default function App() {
           alt={selectedProduct.title}
           style={styles.detailImage}
         />
-        <p style={styles.price}>${selectedProduct.price}</p>
+        <p style={styles.price}>${selectedProduct.price.toFixed(2)}</p>
 
         <p style={styles.description}>{selectedProduct.description}</p>
 
