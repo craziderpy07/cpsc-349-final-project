@@ -965,7 +965,7 @@ export default function App() {
   );
 }
 
-const pink = "#FFD1DC";
+const pink = "#f7b0c6";
 
 const styles = {
   app: {
