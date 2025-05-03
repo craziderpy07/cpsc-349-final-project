@@ -981,7 +981,7 @@ export default function App() {
   const renderContact = () => {
     return (
       <div style={{ padding: "20px" }}>
-        <h2>contact us!</h2>
+        <h2 style={{ fontSize: "40px" }}>contact us!</h2>
         <form onSubmit={handleContactSubmit} style={styles.contactForm}>
           <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
             <input
