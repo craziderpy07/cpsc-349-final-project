@@ -37,6 +37,14 @@ export default function App() {
     cvv: "",
   });
 
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const [contactStatus, setContactStatus] = useState("");
+
   // fetch products from FakeStoreAPI
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -636,6 +644,10 @@ export default function App() {
         <button onClick={() => setPage("cart")} style={styles.navLink}>
           cart ({cart.length})
         </button>
+        <button onClick={() => setPage("contact")} style={styles.navLink}>
+          contact us
+        </button>
+
         {!isAuthenticated ? (
           <>
             <button onClick={() => setPage("sign-in")} style={styles.navLink}>
@@ -949,6 +961,70 @@ export default function App() {
     );
   };
 
+  const handleContactChange = (e) => {
+    const { name, value } = e.target;
+    setContactForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    const { name, email, message } = contactForm;
+
+    if (name && email && message) {
+      setContactStatus("Your message has been sent successfully!");
+      setContactForm({ name: "", email: "", message: "" }); // reset form
+    } else {
+      setContactStatus("Please fill out all fields.");
+    }
+  };
+
+  const renderContact = () => {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h2>contact us!</h2>
+        <form onSubmit={handleContactSubmit} style={styles.contactForm}>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <input
+              type="text"
+              name="name"
+              placeholder="your name..."
+              value={contactForm.name}
+              onChange={handleContactChange}
+              style={{ ...styles.inputField, flex: 1 }}
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="email address..."
+              value={contactForm.email}
+              onChange={handleContactChange}
+              style={{ ...styles.inputField, flex: 1 }}
+            />
+          </div>
+          <input
+            name="message"
+            placeholder="message to us..."
+            value={contactForm.message}
+            onChange={handleContactChange}
+            style={{
+              ...styles.inputField,
+              width: "98.5%",
+              marginBottom: "20px",
+            }}
+          />
+          <button type="submit" style={{ ...styles.button }}>
+            Submit
+          </button>
+        </form>
+        {contactStatus && (
+          <p style={{ marginTop: "10px", textAlign: "center" }}>
+            {contactStatus}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div style={styles.app}>
       {renderNav()}
@@ -961,6 +1037,7 @@ export default function App() {
       {page === "account" && renderAccount()}
       {page === "profile" && renderProfile()}
       {page === "orders" && renderOrders()}
+      {page === "contact" && renderContact()}
     </div>
   );
 }
@@ -1286,5 +1363,29 @@ const styles = {
     width: "50px",
     height: "50px",
     marginRight: "10px",
+  },
+  contactForm: {
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "400px",
+    margin: "0 auto",
+  },
+  inputField: {
+    marginBottom: "10px",
+    padding: "10px",
+    fontSize: "16px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    fontFamily: "'Segoe UI', sans-serif",
+  },
+  button: {
+    padding: "10px",
+    fontSize: "16px",
+    backgroundColor: pink,
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    width: "415px",
   },
 };
