@@ -79,14 +79,14 @@ export default function App() {
       <form onSubmit={handleLogin} style={styles.form}>
         <input
           type="text"
-          placeholder="username"
+          placeholder="username (guest)"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           style={styles.input}
         />
         <input
           type="password"
-          placeholder="password"
+          placeholder="password (12345)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={styles.input}
